@@ -1,7 +1,7 @@
-const router = require("express").Router();
+const router = require('express').Router();
 
 module.exports = (db, updateAppointment) => {
-  router.get("/appointments", (request, response) => {
+  router.get('/appointments', (request, response) => {
     db.query(
       `
       SELECT
@@ -19,20 +19,25 @@ module.exports = (db, updateAppointment) => {
     ).then(({ rows: appointments }) => {
       response.json(
         appointments.reduce(
-          (previous, current) => ({ ...previous, [current.id]: current }),
+          (previous, current) => ({
+            ...previous,
+            [current.id]: current
+          }),
           {}
         )
       );
     });
   });
 
-  router.put("/appointments/:id", (request, response) => {
+  router.put('/appointments/:id', (request, response) => {
     if (process.env.TEST_ERROR) {
       setTimeout(() => response.status(500).json({}), 1000);
       return;
     }
 
     const { student, interviewer } = request.body.interview;
+
+    const clientId = request.body.clientId;
 
     db.query(
       `
@@ -45,24 +50,31 @@ module.exports = (db, updateAppointment) => {
       .then(() => {
         setTimeout(() => {
           response.status(204).json({});
-          updateAppointment(Number(request.params.id), request.body.interview);
+          updateAppointment(
+            Number(request.params.id),
+            request.body.interview,
+            clientId
+          );
         }, 1000);
       })
       .catch(error => console.log(error));
   });
 
-  router.delete("/appointments/:id", (request, response) => {
+  router.delete('/appointments/:id', (request, response) => {
     if (process.env.TEST_ERROR) {
       setTimeout(() => response.status(500).json({}), 1000);
       return;
     }
 
-    db.query(`DELETE FROM interviews WHERE appointment_id = $1::integer`, [
-      request.params.id
-    ]).then(() => {
+    const clientId = request.body.clientId;
+
+    db.query(
+      `DELETE FROM interviews WHERE appointment_id = $1::integer`,
+      [request.params.id]
+    ).then(() => {
       setTimeout(() => {
         response.status(204).json({});
-        updateAppointment(Number(request.params.id), null);
+        updateAppointment(Number(request.params.id), null, clientId);
       }, 1000);
     });
   });
