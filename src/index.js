@@ -12,7 +12,7 @@ let clientId = 0;
 wss.on('connection', socket => {
   socket.send(
     JSON.stringify({
-      id: clientId++,
+      clientId: clientId++,
       type: 'SET_ID'
     })
   );
