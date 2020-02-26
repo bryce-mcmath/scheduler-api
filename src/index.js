@@ -7,7 +7,7 @@ const server = require('http').Server(app);
 const WebSocket = require('ws');
 const wss = new WebSocket.Server({ server });
 
-let clientId = 0;
+let clientId = 1;
 
 wss.on('connection', socket => {
   socket.send(
