@@ -20,12 +20,12 @@ wss.on('connection', socket => {
     console.log(`Message Received: ${event.data}`);
 
     if (event.data === 'ping') {
-      socket.send(JSON.stringify('pong'));
+      return;
     }
   };
 });
 
-function updateAppointment(id, interview) {
+function updateAppointment(id, interview, clientId) {
   wss.clients.forEach(function eachClient(client) {
     if (client.readyState === WebSocket.OPEN) {
       client.send(
